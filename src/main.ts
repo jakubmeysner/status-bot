@@ -17,6 +17,14 @@ client.on("ready", async () => {
     },
   ])
 
+  await client.user?.setPresence({
+    activities: [
+      {
+        name: process.env.STATUS,
+      },
+    ],
+  })
+
   console.log("Ready")
 })
 
