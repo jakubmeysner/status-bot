@@ -80,7 +80,10 @@ async function syncStatusRole(
 
   if (
     presence.activities.some(
-      (activity) => activity.type === "CUSTOM" && checkState(activity.state!)
+      (activity) =>
+        activity.type === "CUSTOM" &&
+        activity.state &&
+        checkState(activity.state)
     )
   ) {
     if (!presence.member.roles.cache.has(process.env.DISCORD_ROLE_ID!)) {
