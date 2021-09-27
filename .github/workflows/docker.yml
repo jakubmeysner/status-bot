@@ -1,0 +1,25 @@
+name: Docker
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: jakubmeysner
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/jakubmeysner/status-bot:latest
