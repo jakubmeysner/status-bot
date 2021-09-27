@@ -11,8 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "types": [
-      "node",
-      "ioredis"
+      "node"
     ]
   }
 }
