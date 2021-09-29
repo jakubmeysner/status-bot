@@ -101,7 +101,7 @@ async function syncStatusRole(
       if (disableNotification || !process.env.DISCORD_NOTIFICATIONS_CHANNEL_ID)
         return true
 
-      await setTimeout(15e3)
+      await setTimeout(60e3)
       await presence.member.fetch()
 
       if (!presence.member.roles.cache.has(process.env.DISCORD_ROLE_ID!)) {
