@@ -1,5 +1,6 @@
 import { Client, GuildMember, Intents, Presence } from "discord.js"
 import dotenv from "dotenv"
+import { stat } from "fs"
 
 dotenv.config()
 
@@ -55,7 +56,7 @@ client.on("interactionCreate", async (interaction) => {
       } else if (process.env.MODE === "start") {
         await interaction.reply(
           `Your custom status does not start with \`${process.env.STATUS}\`!\n` +
-            `Please note that this must be at the beginning.`
+            `Please note that this must be at the beginning (and must be followed by a space if your custom status contains anything else).`
         )
       }
     }
@@ -104,7 +105,10 @@ function checkState(state: string) {
   if (process.env.MODE === "exclusive") {
     return state === process.env.STATUS
   } else if (process.env.MODE === "start") {
-    return state.startsWith(process.env.STATUS!)
+    return (
+      state === process.env.STATUS! ||
+      state.startsWith(process.env.STATUS! + " ")
+    )
   } else {
     return state.includes(process.env.STATUS!)
   }
