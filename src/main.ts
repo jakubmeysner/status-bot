@@ -1,6 +1,6 @@
 import { Client, GuildMember, Intents, Presence } from "discord.js"
 import dotenv from "dotenv"
-import { stat } from "fs"
+import { setTimeout } from "timers/promises"
 
 dotenv.config()
 
@@ -40,7 +40,8 @@ client.on("interactionCreate", async (interaction) => {
     interaction.commandName === "sync-status-role"
   ) {
     const status = await syncStatusRole(
-      (interaction.member as GuildMember).presence
+      (interaction.member as GuildMember).presence,
+      true
     )
 
     if (status === null) {
@@ -66,7 +67,8 @@ client.on("interactionCreate", async (interaction) => {
 client.login(process.env.DISCORD_TOKEN)
 
 async function syncStatusRole(
-  presence: Presence | null
+  presence: Presence | null,
+  disableNotification?: boolean
 ): Promise<boolean | null> {
   if (
     !presence ||
@@ -95,6 +97,26 @@ async function syncStatusRole(
   } else {
     if (presence.member.roles.cache.has(process.env.DISCORD_ROLE_ID!)) {
       await presence.member.roles.remove(process.env.DISCORD_ROLE_ID!)
+
+      if (disableNotification || !process.env.DISCORD_NOTIFICATIONS_CHANNEL_ID)
+        return true
+
+      await setTimeout(15e3)
+      await presence.member.fetch()
+
+      if (!presence.member.roles.cache.has(process.env.DISCORD_ROLE_ID!)) {
+        const channel = await presence.guild!.channels.fetch(
+          process.env.DISCORD_NOTIFICATIONS_CHANNEL_ID
+        )
+
+        if (!channel?.isText()) return false
+
+        await channel.send(
+          `${presence.member}, your custom status is no longer set to \`${process.env.STATUS}\`! ` +
+            `Please change it back to receive the status role. ` +
+            `Remember to set \`Clear after\` to \`Never\`!`
+        )
+      }
     }
 
     return false
