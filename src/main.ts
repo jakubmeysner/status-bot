@@ -4,6 +4,8 @@ import { setTimeout } from "timers/promises"
 
 dotenv.config()
 
+const blacklist = (process.env.BLACKLIST ?? "").trim().split(",")
+
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_PRESENCES],
 })
@@ -39,6 +41,14 @@ client.on("interactionCreate", async (interaction) => {
     interaction.guild?.id === process.env.DISCORD_GUILD_ID! &&
     interaction.commandName === "sync-status-role"
   ) {
+    if (blacklist.includes(interaction.user.id)) {
+      await interaction.reply({
+        content: "You have been blacklisted!",
+      })
+
+      return
+    }
+
     const status = await syncStatusRole(
       (interaction.member as GuildMember).presence,
       true
@@ -74,7 +84,8 @@ async function syncStatusRole(
     !presence ||
     !presence.member ||
     presence.member?.guild.id !== process.env.DISCORD_GUILD_ID! ||
-    presence.status === "offline"
+    presence.status === "offline" ||
+    blacklist.includes(presence.user?.id ?? "")
   ) {
     return null
   }
